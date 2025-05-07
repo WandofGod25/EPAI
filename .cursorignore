@@ -1,0 +1,6 @@
+# Hide the usual cruft…
+node_modules/
+dist/
+# …but explicitly include your .env files for editing
+!.env.
+!.env.local
