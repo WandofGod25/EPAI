@@ -19,4 +19,10 @@ node_modules/
 *.pem
 
 # test secrets
-scripts/test.env 
+scripts/test.env
+
+# External projects and parent directories
+../Briefly/
+../node_modules/
+../package-lock.json
+../package.json 
