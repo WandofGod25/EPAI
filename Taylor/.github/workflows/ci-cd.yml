@@ -15,6 +15,8 @@ permissions:
 
 env:
   # Default values that can be overridden by secrets
+  # Optional secrets (have defaults): SUPABASE_URL, SUPABASE_ANON_KEY, API_BASE_URL
+  # Required secrets (no defaults): SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD_STAGING, SUPABASE_DB_PASSWORD_PRODUCTION
   DEFAULT_SUPABASE_URL: "http://localhost:54321"
   DEFAULT_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
   DEFAULT_API_BASE_URL: "http://localhost:54321/functions/v1"
@@ -214,6 +216,17 @@ jobs:
       # Deploy to Supabase
       - name: Deploy Edge Functions to Staging
         run: |
+          # Check if required secrets are available
+          if [ -z "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ]; then
+            echo "Warning: SUPABASE_ACCESS_TOKEN not configured. Skipping Edge Function deployment."
+            exit 0
+          fi
+          
+          if [ -z "${{ secrets.SUPABASE_DB_PASSWORD_STAGING }}" ]; then
+            echo "Warning: SUPABASE_DB_PASSWORD_STAGING not configured. Skipping Edge Function deployment."
+            exit 0
+          fi
+          
           # Create password file
           touch .supabase_password
           chmod 600 .supabase_password
@@ -271,6 +284,17 @@ jobs:
       # Deploy to Supabase
       - name: Deploy Edge Functions to Production
         run: |
+          # Check if required secrets are available
+          if [ -z "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ]; then
+            echo "Warning: SUPABASE_ACCESS_TOKEN not configured. Skipping Edge Function deployment."
+            exit 0
+          fi
+          
+          if [ -z "${{ secrets.SUPABASE_DB_PASSWORD_PRODUCTION }}" ]; then
+            echo "Warning: SUPABASE_DB_PASSWORD_PRODUCTION not configured. Skipping Edge Function deployment."
+            exit 0
+          fi
+          
           # Create password file
           touch .supabase_password
           chmod 600 .supabase_password
