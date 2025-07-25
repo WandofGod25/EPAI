@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Insights API</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Testing Insights API in Browser</h1>
+    <div id="status">Loading...</div>
+    <div id="result"></div>
+
+    <script>
+        // Environment variables (normally these would come from .env)
+        const SUPABASE_URL = 'https://rxeqkrfldtywkhnxcoys.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4ZXFrcmZsZHR5d2tobnhjb3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MjE2ODksImV4cCI6MjA2NDk5NzY4OX0.tuxYU6EkZNOUmvS3hqANwO9Ee10DaZFO_rAb2uXo4fU';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function testInsightsAPI() {
+            const statusDiv = document.getElementById('status');
+            const resultDiv = document.getElementById('result');
+
+            try {
+                statusDiv.textContent = 'Authenticating...';
+
+                // 1. Authenticate
+                const { data: { user }, error: authError } = await supabase.auth.signInWithPassword({
+                    email: 'ange_andre25@yahoo.com',
+                    password: 'Taylortest'
+                });
+
+                if (authError) {
+                    throw new Error(`Authentication failed: ${authError.message}`);
+                }
+
+                statusDiv.textContent = 'Authentication successful, calling insights API...';
+
+                // 2. Call insights API (exactly like the React app does)
+                const { data, error } = await supabase.functions.invoke('get-insights', {
+                    method: 'POST'
+                });
+
+                if (error) {
+                    throw new Error(`API call failed: ${error.message}`);
+                }
+
+                statusDiv.textContent = '✅ Success!';
+                resultDiv.innerHTML = `
+                    <h3>Insights API Response:</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+
+            } catch (error) {
+                statusDiv.textContent = '❌ Error occurred';
+                resultDiv.innerHTML = `
+                    <h3>Error Details:</h3>
+                    <pre>${error.message}</pre>
+                    <h4>Full Error:</h4>
+                    <pre>${JSON.stringify(error, null, 2)}</pre>
+                `;
+                console.error('Test failed:', error);
+            }
+        }
+
+        // Run the test when page loads
+        testInsightsAPI();
+    </script>
+</body>
+</html> 

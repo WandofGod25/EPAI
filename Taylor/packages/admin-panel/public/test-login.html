@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .error {
+            color: red;
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            color: green;
+            background: #e6ffe6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            background: #e6f3ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Login Test Page</h1>
+    
+    <div class="info">
+        <strong>Environment Info:</strong><br>
+        Supabase URL: <span id="supabaseUrl">Loading...</span><br>
+        Anon Key: <span id="anonKey">Loading...</span>
+    </div>
+    
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="ange_andre25@yahoo.com" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="Taylortest" required>
+        </div>
+        
+        <button type="submit">Login</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        // Load environment variables from the .env file
+        async function loadEnvVars() {
+            try {
+                const response = await fetch('/.env');
+                const envContent = await response.text();
+                const envVars = {};
+                
+                envContent.split('\n').forEach(line => {
+                    const [key, value] = line.split('=');
+                    if (key && value) {
+                        envVars[key.trim()] = value.trim();
+                    }
+                });
+                
+                return envVars;
+            } catch (error) {
+                console.error('Failed to load .env file:', error);
+                return null;
+            }
+        }
+        
+        // Initialize Supabase client
+        async function initSupabase() {
+            const envVars = await loadEnvVars();
+            
+            if (envVars) {
+                document.getElementById('supabaseUrl').textContent = envVars.VITE_SUPABASE_URL || 'Not found';
+                document.getElementById('anonKey').textContent = envVars.VITE_SUPABASE_ANON_KEY ? '***SET***' : '***MISSING***';
+                
+                if (envVars.VITE_SUPABASE_URL && envVars.VITE_SUPABASE_ANON_KEY) {
+                    return window.supabase.createClient(envVars.VITE_SUPABASE_URL, envVars.VITE_SUPABASE_ANON_KEY);
+                }
+            }
+            
+            // Fallback to hardcoded values for testing
+            const supabaseUrl = 'https://rxeqkrfldtywkhnxcoys.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4ZXFrcmZsZHR5d2tobnhjb3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MjE2ODksImV4cCI6MjA2NDk5NzY4OX0.tuxYU6EkZNOUmvS3hqANwO9Ee10DaZFO_rAb2uXo4fU';
+            
+            document.getElementById('supabaseUrl').textContent = supabaseUrl;
+            document.getElementById('anonKey').textContent = '***SET***';
+            
+            return window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        }
+        
+        // Handle login
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="info">Logging in...</div>';
+            
+            try {
+                const supabase = await initSupabase();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                console.log('Attempting login with:', { email, password: '***' });
+                
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    console.error('Login error:', error);
+                    resultDiv.innerHTML = `<div class="error"><strong>Login Failed:</strong><br>${error.message}<br><br>Error details: ${JSON.stringify(error, null, 2)}</div>`;
+                } else {
+                    console.log('Login successful:', data);
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>Login Successful!</strong><br>
+                            User ID: ${data.user.id}<br>
+                            Email: ${data.user.email}<br>
+                            Session expires: ${new Date(data.session.expires_at * 1000).toLocaleString()}
+                        </div>
+                    `;
+                    
+                    // Test Edge Function
+                    setTimeout(async () => {
+                        try {
+                            const { data: functionData, error: functionError } = await supabase.functions.invoke('api-key-manager', {
+                                method: 'GET'
+                            });
+                            
+                            if (functionError) {
+                                resultDiv.innerHTML += `<div class="error"><strong>Edge Function Failed:</strong><br>${functionError.message}</div>`;
+                            } else {
+                                resultDiv.innerHTML += `<div class="success"><strong>Edge Function Successful:</strong><br>${JSON.stringify(functionData, null, 2)}</div>`;
+                            }
+                        } catch (funcError) {
+                            resultDiv.innerHTML += `<div class="error"><strong>Edge Function Error:</strong><br>${funcError.message}</div>`;
+                        }
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error('Unexpected error:', error);
+                resultDiv.innerHTML = `<div class="error"><strong>Unexpected Error:</strong><br>${error.message}</div>`;
+            }
+        }
+        
+        // Initialize
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        
+        // Load environment info on page load
+        window.addEventListener('load', async () => {
+            await initSupabase();
+        });
+    </script>
+</body>
+</html> 

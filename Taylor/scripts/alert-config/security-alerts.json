@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Authentication Failures",
+    "description": "Alert when authentication failures exceed 10 in 5 minutes",
+    "query": "SELECT COALESCE(\n        COUNT(*),\n        0\n      ) as value\n      FROM security_events\n      WHERE created_at > NOW() - INTERVAL '5 minutes'\n      AND event_type = 'auth_failure'",
+    "threshold": 10,
+    "frequency": "every 5 minutes",
+    "severity": "critical",
+    "notification_channels": [
+      "Admin Email",
+      "Team Slack"
+    ]
+  },
+  {
+    "name": "API Key Validation Failures",
+    "description": "Alert when API key validation failures exceed 10 in 5 minutes",
+    "query": "SELECT COALESCE(\n        COUNT(*),\n        0\n      ) as value\n      FROM security_events\n      WHERE created_at > NOW() - INTERVAL '5 minutes'\n      AND event_type = 'api_key_validation_failure'",
+    "threshold": 10,
+    "frequency": "every 5 minutes",
+    "severity": "critical",
+    "notification_channels": [
+      "Admin Email",
+      "Team Slack"
+    ]
+  },
+  {
+    "name": "Suspicious Access Attempts",
+    "description": "Alert when suspicious access attempts are detected",
+    "query": "SELECT COALESCE(\n        COUNT(*),\n        0\n      ) as value\n      FROM security_events\n      WHERE created_at > NOW() - INTERVAL '5 minutes'\n      AND event_type = 'suspicious_access'",
+    "threshold": 0,
+    "frequency": "every 5 minutes",
+    "severity": "critical",
+    "notification_channels": [
+      "Admin Email",
+      "Team Slack"
+    ]
+  },
+  {
+    "name": "Unauthorized Access",
+    "description": "Alert when unauthorized access attempts are detected",
+    "query": "SELECT COALESCE(\n        COUNT(*),\n        0\n      ) as value\n      FROM security_events\n      WHERE created_at > NOW() - INTERVAL '5 minutes'\n      AND event_type = 'unauthorized_access'",
+    "threshold": 0,
+    "frequency": "every 5 minutes",
+    "severity": "critical",
+    "notification_channels": [
+      "Admin Email",
+      "Team Slack"
+    ]
+  }
+]

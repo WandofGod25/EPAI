@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EPAI SDK Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .insight-id {
+            font-family: monospace;
+            background-color: #f5f5f5;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+        #debug-log {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+        .info {
+            color: blue;
+        }
+        .action-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>EPAI SDK Embedding Test</h1>
+    
+    <p>This page demonstrates the embedding of the EPAI SDK. You should see insights below if everything is working correctly.</p>
+    
+    <div class="container">
+        <h2>Standard Insight (Attendance Forecast)</h2>
+        <div class="insight-id">ID: 19e4e46b-a802-4e93-89c7-ac1d3eb2df84</div>
+        <div id="epai-insight-container"></div>
+    </div>
+    
+    <div class="container">
+        <h2>Compact Insight (Lead Scoring)</h2>
+        <div class="insight-id">ID: 21e5d7df-c268-4fd0-9677-898d04b81dab</div>
+        <div id="epai-insight-compact"></div>
+    </div>
+    
+    <div class="container">
+        <h2>Dark Theme Insight (User Engagement)</h2>
+        <div class="insight-id">ID: 204c4307-bf3f-480c-b961-1a8bfed8006f</div>
+        <div id="epai-insight-dark"></div>
+    </div>
+    
+    <h2>Debug Information</h2>
+    <button id="test-api" class="action-button">Test API Directly</button>
+    <button id="reload-sdk" class="action-button">Reload SDK</button>
+    <div id="debug-log"></div>
+    
+    <script>
+        // Debug logging function
+        function log(message, type = 'info') {
+            const debugLog = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            debugLog.appendChild(logEntry);
+            console.log(`[${type}] ${message}`);
+            debugLog.scrollTop = debugLog.scrollHeight; // Auto-scroll to bottom
+        }
+
+        // Configuration
+        const apiKey = "test-api-key-12345"; // API key for testing
+        const supabaseUrl = "http://127.0.0.1:54321"; // Local Supabase URL
+        
+        log(`Using API Key: ${apiKey.substring(0, 5)}...`);
+        log(`Using Supabase URL: ${supabaseUrl}`);
+        
+        // Insight IDs
+        const attendanceForecastId = "19e4e46b-a802-4e93-89c7-ac1d3eb2df84"; // event_details_update model
+        const leadScoringId = "21e5d7df-c268-4fd0-9677-898d04b81dab"; // user_profile_update model
+        const userEngagementId = "204c4307-bf3f-480c-b961-1a8bfed8006f"; // user_engagement model
+        
+        // Test the API directly
+        async function testApi() {
+            try {
+                log('Testing direct API call to get-public-insight...', 'info');
+                
+                const response = await fetch(`${supabaseUrl}/functions/v1/get-public-insight`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey
+                    },
+                    body: JSON.stringify({ insight_id: attendanceForecastId })
+                });
+                
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API error: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                log(`API call successful! Received insight data for "${data.insight.model_name}"`, 'success');
+                
+            } catch (error) {
+                log(`API call failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Load the SDK
+        function loadSdk() {
+            // Remove any existing SDK script
+            const existingScript = document.querySelector('script[data-epai-api-key]');
+            if (existingScript) {
+                log('Removing existing SDK script...', 'info');
+                existingScript.remove();
+            }
+            
+            // Add the SDK script tag to the head
+            log('Adding SDK script to head...', 'info');
+            const sdkScript = document.createElement('script');
+            sdkScript.src = `${supabaseUrl}/functions/v1/sdk-loader`;
+            sdkScript.setAttribute('data-epai-api-key', apiKey);
+            sdkScript.setAttribute('data-epai-url', supabaseUrl);
+            sdkScript.setAttribute('data-epai-theme', 'light');
+            document.head.appendChild(sdkScript);
+            
+            // Wait for the SDK to load
+            sdkScript.onload = function() {
+                log("SDK script loaded successfully!", 'success');
+                
+                // Render insights when the SDK is loaded
+                if (window.epaiInsightSDK) {
+                    log("SDK object found on window", 'success');
+                    try {
+                        // Attendance forecast insight
+                        log(`Rendering insight with ID: ${attendanceForecastId}`);
+                        window.epaiInsightSDK.renderInsight({
+                            insightId: attendanceForecastId,
+                            containerId: 'epai-insight-container',
+                            showConfidence: true,
+                            showTitle: true,
+                            compact: false,
+                            theme: 'light'
+                        }).then(() => {
+                            log('Attendance forecast insight rendered successfully', 'success');
+                        }).catch(error => {
+                            log(`Error rendering attendance insight: ${error.message}`, 'error');
+                        });
+                        
+                        // Lead scoring insight
+                        log(`Rendering insight with ID: ${leadScoringId}`);
+                        window.epaiInsightSDK.renderInsight({
+                            insightId: leadScoringId,
+                            containerId: 'epai-insight-compact',
+                            showConfidence: true,
+                            showTitle: false,
+                            compact: true,
+                            theme: 'light'
+                        }).then(() => {
+                            log('Lead scoring insight rendered successfully', 'success');
+                        }).catch(error => {
+                            log(`Error rendering lead scoring insight: ${error.message}`, 'error');
+                        });
+                        
+                        // User engagement insight
+                        log(`Rendering insight with ID: ${userEngagementId}`);
+                        window.epaiInsightSDK.renderInsight({
+                            insightId: userEngagementId,
+                            containerId: 'epai-insight-dark',
+                            showConfidence: true,
+                            showTitle: true,
+                            compact: false,
+                            theme: 'dark'
+                        }).then(() => {
+                            log('User engagement insight rendered successfully', 'success');
+                        }).catch(error => {
+                            log(`Error rendering user engagement insight: ${error.message}`, 'error');
+                        });
+                    } catch (error) {
+                        log(`Error rendering insights: ${error.message}`, 'error');
+                    }
+                } else {
+                    log("SDK not available on window object!", 'error');
+                }
+            };
+            
+            // Add error handler
+            sdkScript.onerror = function() {
+                log("Failed to load the SDK script!", 'error');
+                log("Check that the Supabase functions are running and accessible", 'info');
+            };
+        }
+        
+        // Set up event listeners for the buttons
+        document.getElementById('test-api').addEventListener('click', testApi);
+        document.getElementById('reload-sdk').addEventListener('click', loadSdk);
+        
+        // Initial load
+        loadSdk();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,35 @@
+{
+  "name": "HighLatency",
+  "type": "threshold",
+  "settings": {
+    "conditions": [
+      {
+        "evaluator": {
+          "params": [
+            200
+          ],
+          "type": "gt"
+        },
+        "operator": {
+          "type": "and"
+        },
+        "query": {
+          "params": [
+            "A"
+          ]
+        },
+        "reducer": {
+          "params": [],
+          "type": "avg"
+        },
+        "type": "query"
+      }
+    ],
+    "noDataState": "no_data",
+    "execErrState": "alerting"
+  },
+  "message": "API response time is above 200ms for the last 5 minutes",
+  "frequency": "1m",
+  "handler": 1,
+  "notifications": []
+}

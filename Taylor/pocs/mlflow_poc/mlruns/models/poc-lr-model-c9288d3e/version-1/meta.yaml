@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1749087094604
+current_stage: None
+description: null
+last_updated_timestamp: 1749087094604
+name: poc-lr-model-c9288d3e
+run_id: c9288d3e54024f2eb44c592d078d6be0
+run_link: null
+source: file:///Users/andreiangelescu/Dev/Taylor/pocs/mlflow_poc/mlruns/0/c9288d3e54024f2eb44c592d078d6be0/artifacts/sklearn-model
+status: READY
+status_message: null
+storage_location: file:///Users/andreiangelescu/Dev/Taylor/pocs/mlflow_poc/mlruns/0/c9288d3e54024f2eb44c592d078d6be0/artifacts/sklearn-model
+user_id: null
+version: 1

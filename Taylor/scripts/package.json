@@ -1,0 +1,24 @@
+{
+  "name": "epai-scripts",
+  "version": "1.0.0",
+  "description": "Scripts for the EPAI project",
+  "type": "module",
+  "scripts": {
+    "test-ingest": "node test-ingest.js",
+    "test-ingest-v3": "node test-ingest-v3.js",
+    "test-security": "node test-security.js",
+    "test-security-enhanced": "node enhanced-security-test.js",
+    "test-function": "node test-function.js",
+    "test-sql-injection": "node test-sql-injection.js",
+    "run-pentest": "node run-penetration-test.js",
+    "prepare-pentest": "node prepare-penetration-testing.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.3",
+    "bcrypt": "^6.0.0",
+    "chalk": "^5.4.1",
+    "dotenv": "^16.6.1",
+    "node-fetch": "^3.3.2",
+    "uuid": "^9.0.0"
+  }
+}

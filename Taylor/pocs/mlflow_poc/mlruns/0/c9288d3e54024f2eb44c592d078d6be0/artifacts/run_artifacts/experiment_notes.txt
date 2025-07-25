@@ -1,0 +1,2 @@
+This was a test run for LogisticRegression with C=0.1.
+Achieved accuracy: 0.8350

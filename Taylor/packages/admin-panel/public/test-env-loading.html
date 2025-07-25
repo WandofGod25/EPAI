@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment Variables Test</title>
+</head>
+<body>
+    <h1>Environment Variables Test</h1>
+    <div id="output"></div>
+    
+    <script type="module">
+        // Test if Vite environment variables are available
+        const output = document.getElementById('output');
+        
+        try {
+            // Check if import.meta.env is available
+            if (typeof import.meta !== 'undefined' && import.meta.env) {
+                const env = import.meta.env;
+                output.innerHTML = `
+                    <h2>Environment Variables Found:</h2>
+                    <p><strong>VITE_SUPABASE_URL:</strong> ${env.VITE_SUPABASE_URL || 'NOT SET'}</p>
+                    <p><strong>VITE_SUPABASE_ANON_KEY:</strong> ${env.VITE_SUPABASE_ANON_KEY ? 'SET (hidden for security)' : 'NOT SET'}</p>
+                    <p><strong>VITE_API_BASE_URL:</strong> ${env.VITE_API_BASE_URL || 'NOT SET'}</p>
+                    <p><strong>MODE:</strong> ${env.MODE || 'NOT SET'}</p>
+                    <p><strong>DEV:</strong> ${env.DEV || 'NOT SET'}</p>
+                `;
+            } else {
+                output.innerHTML = '<p>import.meta.env is not available</p>';
+            }
+        } catch (error) {
+            output.innerHTML = `<p>Error: ${error.message}</p>`;
+        }
+    </script>
+</body>
+</html> 

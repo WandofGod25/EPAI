@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Auth Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Frontend Authentication Test</h1>
+    
+    <div class="test-section info">
+        <h3>Environment Check</h3>
+        <div id="env-status">Checking environment variables...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Supabase Connection Test</h3>
+        <button onclick="testConnection()">Test Connection</button>
+        <div id="connection-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Authentication Test</h3>
+        <input type="email" id="testEmail" placeholder="Email" value="ange_andre25@yahoo.com">
+        <input type="password" id="testPassword" placeholder="Password" value="Taylortest">
+        <button onclick="testAuth()">Test Login</button>
+        <div id="auth-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Session Check</h3>
+        <button onclick="checkSession()">Check Current Session</button>
+        <div id="session-result"></div>
+    </div>
+
+    <script type="module">
+        // Import Supabase client
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+        
+        // Get environment variables from the admin panel
+        const supabaseUrl = 'https://rxeqkrfldtywkhnxcoys.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4ZXFrcmZsZHR5d2tobnhjb3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MjE2ODksImV4cCI6MjA2NDk5NzY4OX0.tuxYU6EkZNOUmvS3hqANwO9Ee10DaZFO_rAb2uXo4fU';
+        
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+        
+        // Environment check
+        document.getElementById('env-status').innerHTML = `
+            <strong>Supabase URL:</strong> ${supabaseUrl}<br>
+            <strong>Anon Key:</strong> ${supabaseAnonKey ? 'SET' : 'NOT SET'}<br>
+            <span style="color: green;">✅ Environment variables loaded correctly</span>
+        `;
+        
+        // Test connection
+        window.testConnection = async function() {
+            const resultDiv = document.getElementById('connection-result');
+            resultDiv.innerHTML = 'Testing connection...';
+            
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    resultDiv.innerHTML = `<span style="color: red;">❌ Connection failed: ${error.message}</span>`;
+                } else {
+                    resultDiv.innerHTML = `<span style="color: green;">✅ Connection successful! Session: ${data.session ? 'Active' : 'None'}</span>`;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<span style="color: red;">❌ Connection error: ${err.message}</span>`;
+            }
+        };
+        
+        // Test authentication
+        window.testAuth = async function() {
+            const resultDiv = document.getElementById('auth-result');
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            resultDiv.innerHTML = 'Testing authentication...';
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+                
+                if (error) {
+                    resultDiv.innerHTML = `<span style="color: red;">❌ Authentication failed: ${error.message}</span>`;
+                } else {
+                    resultDiv.innerHTML = `
+                        <span style="color: green;">✅ Authentication successful!</span><br>
+                        <strong>User ID:</strong> ${data.user?.id}<br>
+                        <strong>Email:</strong> ${data.user?.email}<br>
+                        <strong>Session:</strong> ${data.session ? 'Active' : 'None'}
+                    `;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<span style="color: red;">❌ Authentication error: ${err.message}</span>`;
+            }
+        };
+        
+        // Check session
+        window.checkSession = async function() {
+            const resultDiv = document.getElementById('session-result');
+            resultDiv.innerHTML = 'Checking session...';
+            
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    resultDiv.innerHTML = `<span style="color: red;">❌ Session check failed: ${error.message}</span>`;
+                } else if (data.session) {
+                    resultDiv.innerHTML = `
+                        <span style="color: green;">✅ Session found!</span><br>
+                        <strong>User ID:</strong> ${data.session.user.id}<br>
+                        <strong>Email:</strong> ${data.session.user.email}<br>
+                        <strong>Expires:</strong> ${new Date(data.session.expires_at * 1000).toLocaleString()}
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<span style="color: orange;">⚠️ No active session found</span>';
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<span style="color: red;">❌ Session check error: ${err.message}</span>`;
+            }
+        };
+        
+        // Auto-check session on load
+        window.checkSession();
+    </script>
+</body>
+</html> 

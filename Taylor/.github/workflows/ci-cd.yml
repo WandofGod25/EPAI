@@ -1,0 +1,298 @@
+name: EPAI CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+# Set default permissions
+permissions:
+  contents: read
+  id-token: write # Needed for auth with various cloud providers
+  packages: write # Needed for pushing to GitHub Packages
+  pull-requests: write # Needed for commenting on PRs
+
+env:
+  # Default values that can be overridden by secrets
+  DEFAULT_SUPABASE_URL: "http://localhost:54321"
+  DEFAULT_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
+  DEFAULT_API_BASE_URL: "http://localhost:54321/functions/v1"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+          
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+          
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+            
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Lint
+        run: pnpm run lint
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+          
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+          
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+            
+      - name: Install dependencies
+        run: pnpm install
+        
+      # Create test environment files
+      - name: Setup test environment
+        run: |
+          echo "Setting up test environment files..."
+          
+          # Use secrets if available, otherwise use defaults
+          SUPABASE_URL="${{ secrets.SUPABASE_URL || env.DEFAULT_SUPABASE_URL }}"
+          SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY || env.DEFAULT_SUPABASE_ANON_KEY }}"
+          API_BASE_URL="${{ secrets.API_BASE_URL || env.DEFAULT_API_BASE_URL }}"
+          
+          echo "VITE_SUPABASE_URL=$SUPABASE_URL" > packages/admin-panel/.env.test
+          echo "VITE_SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> packages/admin-panel/.env.test
+          echo "VITE_API_BASE_URL=$API_BASE_URL" >> packages/admin-panel/.env.test
+          cat packages/admin-panel/.env.test | grep -v "KEY"
+        
+      - name: Run tests
+        run: |
+          NODE_ENV=test pnpm test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+          
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+          
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+            
+      - name: Install dependencies
+        run: pnpm install
+        
+      # Create build environment files
+      - name: Setup build environment
+        run: |
+          echo "Setting up build environment files..."
+          
+          # Use secrets if available, otherwise use defaults
+          SUPABASE_URL="${{ secrets.SUPABASE_URL || env.DEFAULT_SUPABASE_URL }}"
+          SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY || env.DEFAULT_SUPABASE_ANON_KEY }}"
+          API_BASE_URL="${{ secrets.API_BASE_URL || env.DEFAULT_API_BASE_URL }}"
+          
+          echo "VITE_SUPABASE_URL=$SUPABASE_URL" > packages/admin-panel/.env.production
+          echo "VITE_SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> packages/admin-panel/.env.production
+          echo "VITE_API_BASE_URL=$API_BASE_URL" >> packages/admin-panel/.env.production
+          cat packages/admin-panel/.env.production | grep -v "KEY"
+        
+      - name: Build Admin Panel
+        run: |
+          NODE_ENV=production pnpm --filter "@epai/admin-panel" build
+        
+      - name: Build SDK
+        run: |
+          NODE_ENV=production pnpm --filter "@epai/insight-sdk" build
+        
+      - name: Upload Admin Panel build
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-panel-build
+          path: packages/admin-panel/dist
+          
+      - name: Upload SDK build
+        uses: actions/upload-artifact@v4
+        with:
+          name: insight-sdk-build
+          path: packages/insight-sdk/dist
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download Admin Panel build
+        uses: actions/download-artifact@v4
+        with:
+          name: admin-panel-build
+          path: packages/admin-panel/dist
+          
+      - name: Download SDK build
+        uses: actions/download-artifact@v4
+        with:
+          name: insight-sdk-build
+          path: packages/insight-sdk/dist
+          
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+          
+      # Set project ID as a step output
+      - name: Set Supabase project ID
+        id: project-id
+        run: echo "PROJECT_ID=epai-staging-12345" >> $GITHUB_OUTPUT
+      
+      # Deploy to Supabase
+      - name: Deploy Edge Functions to Staging
+        run: |
+          # Create password file
+          touch .supabase_password
+          chmod 600 .supabase_password
+          echo "${{ secrets.SUPABASE_DB_PASSWORD_STAGING }}" > .supabase_password
+          
+          # Deploy using the Supabase CLI
+          export SUPABASE_ACCESS_TOKEN="${{ secrets.SUPABASE_ACCESS_TOKEN }}"
+          supabase link --project-ref "${{ steps.project-id.outputs.PROJECT_ID }}" --password-stdin < .supabase_password
+          supabase functions deploy --project-ref "${{ steps.project-id.outputs.PROJECT_ID }}"
+          
+          # Clean up
+          rm -f .supabase_password
+          
+      - name: Deploy Admin Panel to Staging
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}'
+          projectId: epai-staging
+          channelId: live
+          entryPoint: './packages/admin-panel'
+          
+      - name: Output Staging URL
+        run: echo "Deployed to https://epai-staging.example.com"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download Admin Panel build
+        uses: actions/download-artifact@v4
+        with:
+          name: admin-panel-build
+          path: packages/admin-panel/dist
+          
+      - name: Download SDK build
+        uses: actions/download-artifact@v4
+        with:
+          name: insight-sdk-build
+          path: packages/insight-sdk/dist
+          
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+          
+      # Set project ID as a step output
+      - name: Set Supabase project ID
+        id: project-id
+        run: echo "PROJECT_ID=epai-production-67890" >> $GITHUB_OUTPUT
+      
+      # Deploy to Supabase
+      - name: Deploy Edge Functions to Production
+        run: |
+          # Create password file
+          touch .supabase_password
+          chmod 600 .supabase_password
+          echo "${{ secrets.SUPABASE_DB_PASSWORD_PRODUCTION }}" > .supabase_password
+          
+          # Deploy using the Supabase CLI
+          export SUPABASE_ACCESS_TOKEN="${{ secrets.SUPABASE_ACCESS_TOKEN }}"
+          supabase link --project-ref "${{ steps.project-id.outputs.PROJECT_ID }}" --password-stdin < .supabase_password
+          supabase functions deploy --project-ref "${{ steps.project-id.outputs.PROJECT_ID }}"
+          
+          # Clean up
+          rm -f .supabase_password
+          
+      - name: Deploy Admin Panel to Production
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}'
+          projectId: epai-production
+          channelId: live
+          entryPoint: './packages/admin-panel'
+          
+      - name: Output Production URL
+        run: echo "Deployed to https://epai.example.com" 

@@ -1,0 +1,64 @@
+# This is a reference workflow that shows how to set up GitHub secrets
+# It's not meant to be run directly, but to serve as documentation
+
+name: CI/CD Setup Guide
+
+on:
+  workflow_dispatch:
+    inputs:
+      setup_type:
+        description: 'Type of setup to perform'
+        required: true
+        default: 'documentation'
+        type: choice
+        options:
+          - documentation
+
+jobs:
+  documentation:
+    name: CI/CD Setup Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display Setup Instructions
+        run: |
+          echo "# GitHub CI/CD Setup Instructions"
+          echo ""
+          echo "## Required Repository Secrets"
+          echo ""
+          echo "1. Go to your repository on GitHub"
+          echo "2. Navigate to Settings → Secrets and variables → Actions → New repository secret"
+          echo "3. Add the following secrets:"
+          echo ""
+          echo "### Supabase Secrets"
+          echo "- SUPABASE_ACCESS_TOKEN: Your Supabase access token (used for both environments)"
+          echo "- SUPABASE_DB_PASSWORD_STAGING: The database password for your staging Supabase project"
+          echo "- SUPABASE_DB_PASSWORD_PRODUCTION: The database password for your production Supabase project"
+          echo ""
+          echo "### Firebase Secrets"
+          echo "- FIREBASE_SERVICE_ACCOUNT_STAGING: The Firebase service account JSON for staging"
+          echo "- FIREBASE_SERVICE_ACCOUNT_PRODUCTION: The Firebase service account JSON for production"
+          echo ""
+          echo "## Best Practices for Handling Secrets"
+          echo ""
+          echo "Our CI/CD pipeline uses these best practices for handling secrets securely:"
+          echo ""
+          echo "1. **Step Outputs**: We define values in one step and reference them in another"
+          echo "2. **Password Files**: We store passwords in temporary files and pass them via stdin"
+          echo "3. **Environment Variables**: We pass access tokens as environment variables"
+          echo ""
+          echo "## Project Configuration"
+          echo ""
+          echo "The workflow uses project IDs defined as step outputs. If your project IDs are different, update these values in the workflow file:"
+          echo ""
+          echo "### Supabase Projects"
+          echo "- Staging: epai-staging-12345"
+          echo "- Production: epai-production-67890"
+          echo ""
+          echo "### Firebase Projects"
+          echo "- Staging: epai-staging"
+          echo "- Production: epai-production"
+          echo ""
+          echo "## Verify Setup"
+          echo ""
+          echo "After adding all required secrets, the CI/CD pipeline should work correctly."
+          echo "If you're still seeing errors, check the troubleshooting section in .github/CICD_SETUP.md" 

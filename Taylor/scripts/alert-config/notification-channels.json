@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Admin Email",
+    "type": "email",
+    "config": {
+      "email": "admin@epai-platform.com",
+      "subject_prefix": "[EPAI ALERT]"
+    },
+    "enabled": true
+  },
+  {
+    "name": "Team Slack",
+    "type": "slack",
+    "config": {
+      "webhook_url": "https://hooks.slack.com/services/TXXXXXXXX/BXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX",
+      "channel": "#alerts"
+    },
+    "enabled": true
+  }
+]

@@ -1,0 +1,48 @@
+[
+  {
+    "name": "High CPU Usage",
+    "description": "Alert when database CPU usage exceeds 80% for 5 minutes",
+    "query": "SELECT COALESCE(MAX(cpu_usage), 0) as value FROM (\n        SELECT (stats.cpu_usage * 100) as cpu_usage\n        FROM pg_stat_activity stats\n        WHERE stats.state = 'active'\n      ) cpu_stats",
+    "threshold": 80,
+    "frequency": "every 5 minutes",
+    "severity": "critical",
+    "notification_channels": [
+      "Admin Email",
+      "Team Slack"
+    ]
+  },
+  {
+    "name": "Low Disk Space",
+    "description": "Alert when database disk space is below 10%",
+    "query": "SELECT COALESCE((100 - (available_bytes * 100 / total_bytes)), 0) as value\n      FROM pg_stat_file_tables\n      WHERE tablename = 'pg_class'",
+    "threshold": 90,
+    "frequency": "hourly",
+    "severity": "critical",
+    "notification_channels": [
+      "Admin Email",
+      "Team Slack"
+    ]
+  },
+  {
+    "name": "High Connection Count",
+    "description": "Alert when database connection count exceeds 80% of max connections",
+    "query": "SELECT COALESCE(\n        (SELECT COUNT(*) FROM pg_stat_activity) * 100 / \n        (SELECT setting::int FROM pg_settings WHERE name = 'max_connections'),\n        0\n      ) as value",
+    "threshold": 80,
+    "frequency": "every 15 minutes",
+    "severity": "warning",
+    "notification_channels": [
+      "Team Slack"
+    ]
+  },
+  {
+    "name": "Long Running Queries",
+    "description": "Alert when queries run longer than 5 minutes",
+    "query": "SELECT COALESCE(\n        COUNT(pid),\n        0\n      ) as value\n      FROM pg_stat_activity\n      WHERE state = 'active'\n      AND now() - query_start > interval '5 minutes'",
+    "threshold": 0,
+    "frequency": "every 5 minutes",
+    "severity": "warning",
+    "notification_channels": [
+      "Team Slack"
+    ]
+  }
+]

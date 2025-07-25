@@ -1,0 +1,35 @@
+{
+  "name": "HighErrorRate",
+  "type": "threshold",
+  "settings": {
+    "conditions": [
+      {
+        "evaluator": {
+          "params": [
+            5
+          ],
+          "type": "gt"
+        },
+        "operator": {
+          "type": "and"
+        },
+        "query": {
+          "params": [
+            "A"
+          ]
+        },
+        "reducer": {
+          "params": [],
+          "type": "avg"
+        },
+        "type": "query"
+      }
+    ],
+    "noDataState": "no_data",
+    "execErrState": "alerting"
+  },
+  "message": "Error rate is above 5% for the last 5 minutes",
+  "frequency": "1m",
+  "handler": 1,
+  "notifications": []
+}

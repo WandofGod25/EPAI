@@ -1,0 +1,47 @@
+[
+  {
+    "name": "High API Error Rate",
+    "description": "Alert when API error rate exceeds 5% over 5 minutes",
+    "query": "SELECT COALESCE(\n        SUM(CASE WHEN status_code >= 500 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0),\n        0\n      ) as value\n      FROM logs\n      WHERE created_at > NOW() - INTERVAL '5 minutes'\n      AND path LIKE '/api/%'",
+    "threshold": 5,
+    "frequency": "every 5 minutes",
+    "severity": "critical",
+    "notification_channels": [
+      "Admin Email",
+      "Team Slack"
+    ]
+  },
+  {
+    "name": "High API Latency",
+    "description": "Alert when API average latency exceeds 500ms over 5 minutes",
+    "query": "SELECT COALESCE(\n        AVG(response_time_ms),\n        0\n      ) as value\n      FROM logs\n      WHERE created_at > NOW() - INTERVAL '5 minutes'\n      AND path LIKE '/api/%'",
+    "threshold": 500,
+    "frequency": "every 5 minutes",
+    "severity": "warning",
+    "notification_channels": [
+      "Team Slack"
+    ]
+  },
+  {
+    "name": "Rate Limit Violations",
+    "description": "Alert when rate limit violations exceed 10 in 5 minutes",
+    "query": "SELECT COALESCE(\n        COUNT(*),\n        0\n      ) as value\n      FROM logs\n      WHERE created_at > NOW() - INTERVAL '5 minutes'\n      AND status_code = 429",
+    "threshold": 10,
+    "frequency": "every 5 minutes",
+    "severity": "warning",
+    "notification_channels": [
+      "Team Slack"
+    ]
+  },
+  {
+    "name": "Traffic Anomaly",
+    "description": "Alert when API traffic is 50% higher than usual",
+    "query": "SELECT COALESCE(\n        (\n          SELECT COUNT(*) FROM logs\n          WHERE created_at > NOW() - INTERVAL '5 minutes'\n        ) * 100.0 / NULLIF(\n          (\n            SELECT AVG(count)\n            FROM (\n              SELECT COUNT(*) as count\n              FROM logs\n              WHERE created_at > NOW() - INTERVAL '1 day'\n              GROUP BY DATE_TRUNC('hour', created_at)\n            ) hourly_counts\n          ),\n          0\n        ) - 100,\n        0\n      ) as value",
+    "threshold": 50,
+    "frequency": "every 5 minutes",
+    "severity": "warning",
+    "notification_channels": [
+      "Team Slack"
+    ]
+  }
+]

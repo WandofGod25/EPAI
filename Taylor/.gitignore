@@ -1,0 +1,22 @@
+# Supabase
+.env
+supabase/
+!supabase/.gitignore
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# macOS
+.DS_Store 
+
+# misc
+.DS_Store
+*.pem
+
+# test secrets
+scripts/test.env 

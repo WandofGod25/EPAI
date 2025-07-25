@@ -1,0 +1,50 @@
+{
+  "name": "taylor",
+  "private": true,
+  "main": "index.js",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter @epai/admin-panel dev",
+    "build": "pnpm --filter @epai/admin-panel build && pnpm --filter @epai/insight-sdk build",
+    "test": "node scripts/test-runner.js all",
+    "test:unit": "node scripts/test-runner.js unit",
+    "test:integration": "node scripts/test-runner.js integration",
+    "test:component": "node scripts/test-runner.js component",
+    "test:coverage": "pnpm --filter @epai/admin-panel test:coverage",
+    "lint": "pnpm --recursive lint",
+    "load-test": "node scripts/run-load-tests.js",
+    "deploy-prod": "node scripts/deploy-to-production.js",
+    "setup-backups": "node scripts/configure-automated-backups.js",
+    "setup-alerts": "node scripts/setup-critical-alerts.js",
+    "prepare-pentest": "node scripts/prepare-penetration-testing.js",
+    "run-pentest": "node scripts/run-penetration-test.js",
+    "test-user-flows": "node scripts/test-user-flows.js",
+    "generate-docs": "node scripts/generate-documentation.js",
+    "create-file": "node scripts/file-helper.js create",
+    "append-file": "node scripts/file-helper.js append",
+    "replace-file": "node scripts/file-helper.js replace",
+    "create-script": "node scripts/template-generator.js script",
+    "create-doc": "node scripts/template-generator.js doc",
+    "create-test": "node scripts/template-generator.js test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.0",
+    "@types/recharts": "^1.8.29",
+    "autocannon": "^7.14.0",
+    "chalk": "^4.1.2",
+    "d3-shape": "^3.2.0",
+    "date-fns": "^2.30.0",
+    "dotenv": "^16.5.0",
+    "node-fetch": "^3.3.2",
+    "puppeteer": "^22.5.0",
+    "recharts": "^2.15.3",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^10.0.0",
+    "vitest": "^1.3.1"
+  }
+}

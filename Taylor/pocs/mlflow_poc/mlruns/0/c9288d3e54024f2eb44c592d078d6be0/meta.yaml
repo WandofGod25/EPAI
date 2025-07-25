@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/andreiangelescu/Dev/Taylor/pocs/mlflow_poc/mlruns/0/c9288d3e54024f2eb44c592d078d6be0/artifacts
+end_time: 1749087094607
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: c9288d3e54024f2eb44c592d078d6be0
+run_name: orderly-wasp-423
+run_uuid: c9288d3e54024f2eb44c592d078d6be0
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1749087092793
+status: 3
+tags: []
+user_id: andreiangelescu

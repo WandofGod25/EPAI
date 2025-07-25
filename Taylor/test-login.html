@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EPAI Login Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #0070f3;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover {
+      background-color: #0060df;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }
+    .error {
+      color: #d32f2f;
+      font-weight: 500;
+    }
+    .success {
+      color: #388e3c;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <h1>EPAI Login Test</h1>
+  
+  <div class="form-group">
+    <label for="email">Email:</label>
+    <input type="email" id="email" value="ange_andre25@yahoo.com">
+  </div>
+  
+  <div class="form-group">
+    <label for="password">Password:</label>
+    <input type="password" id="password" value="Taylortest">
+  </div>
+  
+  <button onclick="login()">Login</button>
+  
+  <div class="result" id="result">
+    <p>Login results will appear here...</p>
+  </div>
+
+  <script>
+    // Initialize Supabase client
+    const supabaseUrl = 'http://127.0.0.1:54321';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Login function
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const resultDiv = document.getElementById('result');
+      
+      try {
+        resultDiv.innerHTML = '<p>Attempting to login...</p>';
+        
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
+        
+        if (error) {
+          resultDiv.innerHTML = `
+            <p class="error">Login failed: ${error.message}</p>
+            <p>Error details:</p>
+            <pre>${JSON.stringify(error, null, 2)}</pre>
+          `;
+        } else {
+          resultDiv.innerHTML = `
+            <p class="success">Login successful!</p>
+            <p>User authenticated:</p>
+            <pre>${JSON.stringify(data.user, null, 2)}</pre>
+            <p>Session:</p>
+            <pre>${JSON.stringify(data.session, null, 2)}</pre>
+          `;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `
+          <p class="error">Exception occurred: ${err.message}</p>
+          <pre>${JSON.stringify(err, null, 2)}</pre>
+        `;
+      }
+    }
+  </script>
+</body>
+</html> 

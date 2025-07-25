@@ -1,0 +1,298 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "EPAI API",
+    "version": "1.0.0",
+    "description": "API documentation for the Embedded Predictive Analytics Integrator"
+  },
+  "servers": [
+    {
+      "url": "https://api.epai.example.com",
+      "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.epai.example.com",
+      "description": "Staging server"
+    }
+  ],
+  "paths": {
+    "/ingest": {
+      "post": {
+        "summary": "Ingest event data",
+        "description": "Ingests event data for predictive analytics processing",
+        "tags": [
+          "Data Ingestion"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestionEvent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event successfully ingested",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Event ingested successfully"
+                    },
+                    "eventId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "123e4567-e89b-12d3-a456-426614174000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get-insights": {
+      "get": {
+        "summary": "Get insights",
+        "description": "Retrieves insights generated from ingested data",
+        "tags": [
+          "Insights"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of insights to return",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of insights to skip",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Insights retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "insights": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Insight"
+                      }
+                    },
+                    "count": {
+                      "type": "integer",
+                      "example": 10
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 42
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IngestionEvent": {
+        "type": "object",
+        "required": [
+          "event_type",
+          "data",
+          "source",
+          "version"
+        ],
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "description": "Type of event being ingested",
+            "example": "page_view",
+            "enum": [
+              "page_view",
+              "user_engagement",
+              "event_attendance",
+              "custom"
+            ]
+          },
+          "data": {
+            "type": "object",
+            "description": "Event data",
+            "additionalProperties": true
+          },
+          "source": {
+            "type": "string",
+            "description": "Source of the event",
+            "example": "web_app"
+          },
+          "version": {
+            "type": "string",
+            "description": "Version of the event schema",
+            "example": "1.0.0"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Optional metadata for the event",
+            "additionalProperties": true
+          }
+        }
+      },
+      "Insight": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "model_id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174001"
+          },
+          "content": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "example": "Attendance Forecast"
+              },
+              "description": {
+                "type": "string",
+                "example": "Based on current registrations, expect 85% attendance"
+              },
+              "confidence": {
+                "type": "number",
+                "format": "float",
+                "example": 0.92
+              },
+              "recommendation": {
+                "type": "string",
+                "example": "Consider sending a reminder email 24 hours before the event"
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-08-01T12:00:00Z"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid API key"
+          },
+          "code": {
+            "type": "string",
+            "example": "auth/invalid-api-key"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "apikey"
+      }
+    }
+  }
+}
