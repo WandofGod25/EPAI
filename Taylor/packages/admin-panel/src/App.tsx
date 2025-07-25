@@ -12,6 +12,7 @@ import InsightsPage from './pages/InsightsPage'
 import SettingsPage from './pages/SettingsPage'
 import IntegrationPage from './pages/IntegrationPage'
 import SDKShowroomPage from './pages/SDKShowroomPage'
+import PredictionsPage from './pages/PredictionsPage'
 import TestImport from './test-import'
 
 const AppRoutes = () => {
@@ -29,6 +30,7 @@ const AppRoutes = () => {
                 <Route path="models" element={<ModelsPage />} />
                 <Route path="logs" element={<LogsPage />} />
                 <Route path="insights" element={<InsightsPage />} />
+                <Route path="predictions" element={<PredictionsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="integration" element={<IntegrationPage />} />
                 <Route path="sdk-showroom" element={<SDKShowroomPage />} />

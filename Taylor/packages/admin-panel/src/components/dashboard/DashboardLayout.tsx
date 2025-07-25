@@ -47,6 +47,7 @@ const DashboardLayout = () => {
         { to: "/models", label: "Models" },
         { to: "/logs", label: "Logs" },
         { to: "/insights", label: "Insights" },
+        { to: "/predictions", label: "Predictions" },
         { to: "/integration", label: "Integration" },
         { to: "/settings", label: "Settings" },
         { to: "/test-import", label: "Test Import" },

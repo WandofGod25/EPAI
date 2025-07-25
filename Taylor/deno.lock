@@ -133,7 +133,9 @@
     "https://esm.sh/whatwg-url@5.0.0/denonext/whatwg-url.mjs": "29b16d74ee72624c915745bbd25b617cfd2248c6af0f5120d131e232a9a9af79",
     "https://esm.sh/whatwg-url@5.0.0?target=denonext": "f001a2cadf81312d214ca330033f474e74d81a003e21e8c5d70a1f46dc97b02d",
     "https://esm.sh/ws@8.18.2/denonext/ws.mjs": "b9211ecb1511b09f418c1330920c66800b66710b2cd2997b64b7e0525bd895d2",
-    "https://esm.sh/ws@8.18.2?target=denonext": "2ee7b1bb11543dda3e7e1c685ad8599b6f18aea785302374c3def5da468a1e51"
+    "https://esm.sh/ws@8.18.2?target=denonext": "2ee7b1bb11543dda3e7e1c685ad8599b6f18aea785302374c3def5da468a1e51",
+    "https://esm.sh/zod@3.22.4": "58f997d2fb4d837fdccc359937cfa92ec0c2870fcda1e58fa52eadd998b06dd1",
+    "https://esm.sh/zod@3.22.4/denonext/zod.mjs": "2302c597fb6b5342e5f56ece83f759f82383376d7eca8d00eb56c41d2a65fb5b"
   },
   "workspace": {
     "packageJson": {
@@ -162,6 +164,7 @@
             "npm:@radix-ui/react-avatar@^1.1.0",
             "npm:@radix-ui/react-dialog@^1.1.1",
             "npm:@radix-ui/react-label@^2.0.2",
+            "npm:@radix-ui/react-select@^2.2.5",
             "npm:@radix-ui/react-slot@^1.2.3",
             "npm:@radix-ui/react-toast@^1.2.14",
             "npm:@supabase/supabase-js@^2.50.0",
@@ -209,6 +212,7 @@
       "packages/insight-sdk": {
         "packageJson": {
           "dependencies": [
+            "npm:@storybook/react-vite@^9.0.18",
             "npm:@types/react-dom@^18.2.7",
             "npm:@types/react@^18.2.15",
             "npm:@typescript-eslint/eslint-plugin@6",
@@ -216,6 +220,7 @@
             "npm:@vitejs/plugin-react@^4.0.3",
             "npm:eslint-plugin-react-hooks@^4.6.0",
             "npm:eslint-plugin-react-refresh@~0.4.3",
+            "npm:eslint-plugin-storybook@^9.0.18",
             "npm:eslint@^8.45.0",
             "npm:react-dom@^18.2.0",
             "npm:react@^18.2.0",

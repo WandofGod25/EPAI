@@ -110,8 +110,6 @@ jobs:
           cat packages/admin-panel/.env.test | grep -v "KEY"
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
         
       - name: Run tests
         run: |
@@ -168,8 +166,6 @@ jobs:
           cat packages/admin-panel/.env.production | grep -v "KEY"
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
         
       - name: Build Admin Panel
         run: |
