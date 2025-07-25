@@ -228,16 +228,15 @@ jobs:
           rm -f .supabase_password
           
       - name: Deploy Admin Panel to Staging
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}'
-          projectId: epai-staging
-          channelId: live
-          entryPoint: './packages/admin-panel'
+        run: |
+          echo "Admin Panel built successfully"
+          echo "Deploy to your preferred hosting service:"
+          echo "- Supabase Hosting: https://supabase.com/docs/guides/hosting"
+          echo "- Vercel: https://vercel.com"
+          echo "- Netlify: https://netlify.com"
           
       - name: Output Staging URL
-        run: echo "Deployed to https://epai-staging.example.com"
+        run: echo "Build artifacts ready for deployment"
 
   deploy-production:
     name: Deploy to Production
@@ -286,13 +285,12 @@ jobs:
           rm -f .supabase_password
           
       - name: Deploy Admin Panel to Production
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}'
-          projectId: epai-production
-          channelId: live
-          entryPoint: './packages/admin-panel'
+        run: |
+          echo "Admin Panel built successfully"
+          echo "Deploy to your preferred hosting service:"
+          echo "- Supabase Hosting: https://supabase.com/docs/guides/hosting"
+          echo "- Vercel: https://vercel.com"
+          echo "- Netlify: https://netlify.com"
           
       - name: Output Production URL
-        run: echo "Deployed to https://epai.example.com" 
+        run: echo "Build artifacts ready for deployment" 
